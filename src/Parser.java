@@ -2,11 +2,15 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public final class Parser {
-	private Parser() {
-	}
+    private Parser() {
+    }
 
-	public static Input parse(final Stream<String> lineStream) {
-		return null;
+    public static Input parse(final Stream<String> lineStream) {
+        return null;
+    }
+
+    public static String toOutput(final List<Output> plan) {
+        return null;
     }
 
 	public static String toOutput(final List<Output> outputs) {
