@@ -29,6 +29,10 @@ public final class Solver {
                 final Library a = registration.get(i);
                 final Library b = registration.get(i + 1);
 
+                if (day >= days) {
+                    break;
+                }
+
                 final int scoreA1 = libraryInterest(a, days - day - a.signupTime);
                 final int scoreB1 = libraryInterest(b, days - day - a.signupTime - b.signupTime);
 
@@ -54,7 +58,8 @@ public final class Solver {
 
         for (final Library library : registration) {
             final Output output = new Output(library);
-            library.books.stream().limit(library.shipAmount * days).forEachOrdered(output.books::add);
+            final long limit = (long) library.shipAmount * Math.max(days, 0);
+            library.books.stream().limit(limit).forEachOrdered(output.books::add);
             plan.add(output);
         }
 
