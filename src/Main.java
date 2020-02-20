@@ -12,7 +12,7 @@ public final class Main {
 		final Input input = Parser.parse(reader.lines());
 		final List<Output> output = Solver.solveGreedy(input.libraries, input.days);
 		System.out.println("score: " + Solver.score(output, input.days));
-		System.out.println("sane: " + SolverSanity.sanity(output));
+		System.out.println("sane: " + SolverSanity.sanity(input, output));
 		writer.write(Parser.toOutput(output));
 		writer.flush();
 		writer.close();
