@@ -150,4 +150,22 @@ public final class Solver {
         return plan;
     }
 
+    // for dataset D
+    public static List<Output> solveMaxBooksNumAndRemoveCommittedBooks(final List<Library> libraries, final int days) {
+
+        // min max num of books
+        libraries.sort(Comparator.comparing(library->library.books.size()));
+
+        final List<Output> plan = new ArrayList<>();
+
+        for (final Library library : libraries) {
+            final Output output = new Output(library);
+            final long limit = (long) library.shipAmount * Math.max(days, 0);
+            library.books.stream().limit(limit).forEachOrdered(output.books::add);
+            plan.add(output);
+        }
+
+        return plan;
+    }
+
 }
