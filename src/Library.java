@@ -1,16 +1,16 @@
-import java.util.*;
-
 public final class Library {
-	public final Integer id;
-	public final List<Book> books;
+    public final int id;
+    public final int signupTime;
+    public final int shipAmount;
 
-	public Library(final Integer id) {
-		this.id = id;
-		books = new ArrayList<Book>();
-	}
+    public Library(final int id, final int signupTime, final int shipAmount) {
+        this.id = id;
+        this.signupTime = signupTime;
+        this.shipAmount = shipAmount;
+    }
 
-	@override
-	public String toString() {
-		return this.id.toString();
-	}
+    @Override
+    public String toString() {
+        return String.valueOf(this.id);
+    }
 }

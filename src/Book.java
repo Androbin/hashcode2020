@@ -1,17 +1,12 @@
-import java.io.*;
-import java.util.*;
-
 public final class Book {
-	public final integer id;
-	public final integer score;
+    public final int id;
 
-	public Book(final integer id, final integer score) {
-		this.id = id;
-		this.score = score;
-	}
+    public Book(final int id) {
+        this.id = id;
+    }
 
-	@overwrite
-	public string toString() {
-		return this.id.toString();
-	}
+    @Override
+    public String toString() {
+        return String.valueOf(this.id);
+    }
 }
