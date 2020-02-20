@@ -7,7 +7,7 @@ public final class Output {
 
 	public Output(final Library library) {
 		this.library = library;
-		books = new ArrayList<>();
+		books = new ArrayList<Book>();
 	}
 
 	@overwrite
