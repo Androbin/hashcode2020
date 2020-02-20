@@ -16,6 +16,7 @@ public final class Solver {
 
     public static List<Library> registration(final List<Library> libraries, final int days) {
         final List<Library> registration = new ArrayList<>(libraries);
+        Collections.sort(registration, Comparator.comparingInt(library -> library.signupTime));
         boolean done = false;
 
         while (!done) {
@@ -71,16 +72,23 @@ public final class Solver {
     }
 
     public static int score(final List<Output> plan, final int days) {
-        int day = 0;
+        final HashSet<Book> books = new HashSet<>();
+
         int result = 0;
+        int day = 0;
 
         for (final Output output : plan) {
             day += output.library.signupTime;
 
-            // TODO: don't ignore deadline and speed
+            if (day >= days) {
+                break;
+            }
 
             for (final Book book : output.books) {
-                result += book.score;
+                if (!books.contains(book)) {
+                    books.add(book);
+                    result += book.score;
+                }
             }
         }
 
@@ -90,7 +98,7 @@ public final class Solver {
     // for dataset B
     public static List<Output> solveMinSignUp(final List<Library> libraries, final int days) {
 
-        libraries.sort(Comparator.comparing(library->library.signupTime));
+        libraries.sort(Comparator.comparing(library -> library.signupTime));
         //System.out.println("librarys.signupTime: "+ libraries);
         final List<Output> plan = new ArrayList<>();
 
@@ -108,7 +116,7 @@ public final class Solver {
     public static List<Output> solveMinSignUpAndGreedy(final List<Library> libraries, final int days) {
 
         // min sign-up time
-        libraries.sort(Comparator.comparing(library->library.signupTime));
+        libraries.sort(Comparator.comparing(library -> library.signupTime));
         // greedy registration
         final List<Library> registration = registration(libraries, days);
 
