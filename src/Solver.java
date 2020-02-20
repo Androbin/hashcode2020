@@ -106,8 +106,7 @@ public final class Solver {
 
         for (final Library library : libraries) {
             final Output output = new Output(library);
-            final long limit = (long) library.shipAmount * Math.max(days, 0);
-            library.books.stream().limit(limit).forEachOrdered(output.books::add);
+            library.books.stream().forEachOrdered(output.books::add);
             plan.add(output);
         }
 
@@ -117,8 +116,8 @@ public final class Solver {
     // for dataset D
     public static List<Output> solveMaxBooksNum(final List<Library> libraries, final int days) {
 
-        // min max num of books
-        libraries.sort(Comparator.comparing(library->library.books.size()));
+        // max num of books
+        libraries.sort(Comparator.comparing((Library library)->library.books.size()).reversed());
 
         final List<Output> plan = new ArrayList<>();
 
@@ -134,16 +133,27 @@ public final class Solver {
 
     // for dataset D
     public static List<Output> solveMaxBooksNumAndRemoveCommittedBooks(final List<Library> libraries, final int days) {
-
-        // min max num of books
-        libraries.sort(Comparator.comparing(library->library.books.size()));
-
+        final List<Library> registration = new ArrayList<>(libraries);
         final List<Output> plan = new ArrayList<>();
 
-        for (final Library library : libraries) {
+        // sort by num of books desc
+        registration.sort(Comparator.comparing((Library library)->library.books.size()).reversed());
+
+        while (!registration.isEmpty()) {
+            Library library = registration.remove(0);
             final Output output = new Output(library);
-            final long limit = (long) library.shipAmount * Math.max(days, 0);
-            library.books.stream().limit(limit).forEachOrdered(output.books::add);
+
+            // add books to output
+            library.books.stream().forEachOrdered(output.books::add);
+
+            // remove added books from all other libraries
+            for (Library otherLib : registration) {
+                otherLib.books.removeIf(book -> library.books.contains(book));
+            }
+
+            // sort by num of books desc
+            registration.sort(Comparator.comparing((Library lib)->lib.books.size()).reversed());
+
             plan.add(output);
         }
 
