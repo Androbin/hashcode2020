@@ -2,3 +2,6 @@
 out/
 output/
 *.iml
+
+# UNIX
+.DS_STORE
