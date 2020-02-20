@@ -79,7 +79,7 @@ public final class Solver {
     }
 
     public static List<Output> solveMinSignup(final List<Library> libraries, final int days) {
-        
+
         final List<Library> registration = new ArrayList<>();
         
         registration.addAll(libraries);
