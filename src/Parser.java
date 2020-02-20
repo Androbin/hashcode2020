@@ -1,9 +1,10 @@
 import java.util.stream.Stream;
 
-
 public final class Parser {
+	private Parser() {
+	}
 
-    public static void parse(final Stream<String> lineStream) {
-
+	public static Input parse(final Stream<String> lineStream) {
+		return null;
     }
 }
