@@ -33,12 +33,12 @@ public final class Parser {
 		return result;
 	}
 
-	public static String toOutput(final List<Slide> slides) {
+	public static String toOutput(final List<Output> outputs) {
 		final StringBuilder result = new StringBuilder();
-		result.append(slides.size()).append('\n');
+		result.append(outputs.size()).append('\n');
 
-		for (final Slide slide : slides) {
-			result.append(slide.toString()).append('\n');
+		for (final Output output : outputs) {
+			result.append(output.toString()).append('\n');
 		}
 
 		return result.toString();
