@@ -137,4 +137,21 @@ public final class Solver {
         return plan;
     }
 
+    public static List<Output> solveLibScore(final List<Library> libraries, final int days) {
+        final List<Library> registration = registration(libraries, days);
+        registration.sort(Comparator.comparing((Library library) -> library.calcScore()).reversed());
+
+        final List<Output> plan = new ArrayList<>();
+        final Set<Book> books = new HashSet<>();
+
+        for (final Library library : registration) {
+            final Output output = new Output(library);
+            library.books.stream().filter(book -> !books.contains(book)).forEachOrdered(output.books::add);
+            plan.add(output);
+            books.addAll(output.books);
+        }
+
+        return plan;
+    }
+
 }

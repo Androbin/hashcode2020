@@ -13,6 +13,16 @@ public final class Library {
 		this.books = books;
 	}
 
+	public int calcScore() {
+		int score = 0;
+
+		for (Book book: books) {
+			score += book.score;
+		}
+
+		return score;
+	}
+
 	@Override
 	public String toString() {
 		return String.valueOf(id);
