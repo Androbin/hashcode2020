@@ -26,7 +26,6 @@ public final class Output {
             result.append(book.toString()).append(' ');
         }
 
-        result.append('\n');
         return result.toString();
     }
 
