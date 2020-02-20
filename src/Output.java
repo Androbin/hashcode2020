@@ -7,11 +7,11 @@ public final class Output {
 
 	public Output(final Library library) {
 		this.library = library;
-		books = new ArrayList<>();
+		books = new ArrayList<Book>();
 	}
 
-	@overwrite
-	public string toString() {
+	@Override
+	public String toString() {
 		final StringBuilder result = new StringBuilder();
 		// library and num_books
 		result.append(library).append(' ').append(books.size()).append('\n');

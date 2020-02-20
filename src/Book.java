@@ -5,7 +5,6 @@ public final class Book {
         this.id = id;
     }
 
-    @Override
     public String toString() {
         return String.valueOf(this.id);
     }
