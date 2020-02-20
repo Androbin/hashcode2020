@@ -116,9 +116,8 @@ public final class Solver {
 
     // for dataset D
     public static List<Output> solveMaxBooksNum(final List<Library> libraries, final int days) {
-
         // min max num of books
-        libraries.sort(Comparator.comparing(library->library.books.size()));
+        libraries.sort(Comparator.comparing(library -> library.books.size()));
 
         final List<Output> plan = new ArrayList<>();
 

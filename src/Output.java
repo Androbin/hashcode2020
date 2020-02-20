@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.Math;
 
 public final class Output {
     public final Library library;
@@ -31,7 +30,7 @@ public final class Output {
 
     public int calcScanningTime() {
         int num_books = this.books.size();
-        return (int) Math.ceil(num_books/this.library.shipAmount);
+        return (int) Math.ceil(num_books / this.library.shipAmount);
     }
 
     public String toDebugString() {
