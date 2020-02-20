@@ -72,15 +72,11 @@ public final class Solver {
         return result;
     }
 
-    // for dataset B
-    public static List<Output> solveMinSignUp(final List<Library> libraries, final int days) {
-        final List<Library> registration = registration(libraries, days);
-        registration.sort(Comparator.comparing(library -> library.signupTime));
-
+    private static List<Output> solveGreedy(final List<Library> libraries) {
         final List<Output> plan = new ArrayList<>();
         final Set<Book> books = new HashSet<>();
 
-        for (final Library library : registration) {
+        for (final Library library : libraries) {
             final Output output = new Output(library);
             library.books.stream().filter(book -> !books.contains(book)).forEachOrdered(output.books::add);
             plan.add(output);
@@ -90,22 +86,17 @@ public final class Solver {
         return plan;
     }
 
+    // for dataset B
+    public static List<Output> solveMinSignUp(final List<Library> libraries, final int days) {
+        libraries.sort(Comparator.comparing(library -> library.signupTime));
+        final List<Library> registration = registration(libraries, days);
+        return solveGreedy(registration);
+    }
+
     // for dataset D
     public static List<Output> solveMaxBooksNum(final List<Library> libraries, final int days) {
-        final List<Library> registration = registration(libraries, days);
-        registration.sort(Comparator.comparing((Library library) -> library.books.size()).reversed());
-
-        final List<Output> plan = new ArrayList<>();
-        final Set<Book> books = new HashSet<>();
-
-        for (final Library library : registration) {
-            final Output output = new Output(library);
-            library.books.stream().filter(book -> !books.contains(book)).forEachOrdered(output.books::add);
-            plan.add(output);
-            books.addAll(output.books);
-        }
-
-        return plan;
+        libraries.sort(Comparator.comparing((Library library) -> library.books.size()).reversed());
+        return solveGreedy(libraries);
     }
 
     // for dataset D
@@ -114,7 +105,7 @@ public final class Solver {
         final List<Output> plan = new ArrayList<>();
 
         // sort by num of books desc
-        registration.sort(Comparator.comparing((Library library)->library.books.size()).reversed());
+        registration.sort(Comparator.comparing((Library library) -> library.books.size()).reversed());
 
         while (!registration.isEmpty()) {
             Library library = registration.remove(0);
@@ -129,7 +120,7 @@ public final class Solver {
             }
 
             // sort by num of books desc
-            registration.sort(Comparator.comparing((Library lib)->lib.books.size()).reversed());
+            registration.sort(Comparator.comparing((Library lib) -> lib.books.size()).reversed());
 
             plan.add(output);
         }
@@ -140,18 +131,6 @@ public final class Solver {
     public static List<Output> solveLibScore(final List<Library> libraries, final int days) {
         final List<Library> registration = registration(libraries, days);
         registration.sort(Comparator.comparing((Library library) -> library.calcScore()).reversed());
-
-        final List<Output> plan = new ArrayList<>();
-        final Set<Book> books = new HashSet<>();
-
-        for (final Library library : registration) {
-            final Output output = new Output(library);
-            library.books.stream().filter(book -> !books.contains(book)).forEachOrdered(output.books::add);
-            plan.add(output);
-            books.addAll(output.books);
-        }
-
-        return plan;
+        return solveGreedy(registration);
     }
-
 }
