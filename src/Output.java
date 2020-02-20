@@ -10,8 +10,8 @@ public final class Output {
 		books = new ArrayList<Book>();
 	}
 
-	@overwrite
-	public string toString() {
+	@Override
+	public String toString() {
 		final StringBuilder result = new StringBuilder();
 		// library and num_books
 		result.append(library).append(' ').append(books.size()).append('\n');
