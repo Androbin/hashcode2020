@@ -1,15 +1,16 @@
-import java.io.*;
 import java.util.*;
 
 public final class Library {
-	public final integer id;
+	public final Integer id;
+	public final List<Book> books;
 
-	public Library(final integer id) {
+	public Library(final Integer id) {
 		this.id = id;
+		books = new ArrayList<Book>();
 	}
 
-	@overwrite
-	public string toString() {
+	@override
+	public String toString() {
 		return this.id.toString();
 	}
 }
