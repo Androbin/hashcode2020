@@ -13,19 +13,21 @@ public final class Solver {
     }
 
     private static int libraryInterest(final Library library, final int days) {
-        return library.books.stream().limit(library.shipAmount * days).mapToInt(book -> book.score).sum();
+        final long limit = (long) library.shipAmount * Math.max(days, 0);
+        return library.books.stream().limit(limit).mapToInt(book -> book.score).sum();
     }
 
-    public static List<Output> solveGreedy(final List<Library> libraries, final int days) {
-        final List<Library> registration = new ArrayList<>();
-        registration.addAll(libraries);
+    public static List<Library> registration(final List<Library> libraries, final int days) {
+        final List<Library> registration = new ArrayList<>(libraries);
+        boolean done = false;
 
-        for (int i = 0; i < days; i++) {
+        while (!done) {
             int day = 0;
+            done = true;
 
-            for (int j = 0; j < libraries.size() - 1; j++) {
-                final Library a = registration.get(j);
-                final Library b = registration.get(j + 1);
+            for (int i = 0; i < libraries.size() - 1; i++) {
+                final Library a = registration.get(i);
+                final Library b = registration.get(i + 1);
 
                 final int scoreA1 = libraryInterest(a, days - day - a.signupTime);
                 final int scoreB1 = libraryInterest(b, days - day - a.signupTime - b.signupTime);
@@ -34,15 +36,28 @@ public final class Solver {
                 final int scoreB2 = libraryInterest(b, days - day - b.signupTime);
 
                 if (scoreA2 + scoreB2 > scoreA1 + scoreB1) {
-                    Collections.swap(registration, j, j + 1);
+                    Collections.swap(registration, i, i + 1);
                     day += b.signupTime;
+                    done = false;
                 } else {
                     day += a.signupTime;
                 }
             }
         }
 
+        return registration;
+    }
+
+    public static List<Output> solveGreedy(final List<Library> libraries, final int days) {
+        final List<Library> registration = registration(libraries, days);
         final List<Output> plan = new ArrayList<>();
+
+        for (final Library library : registration) {
+            final Output output = new Output(library);
+            library.books.stream().limit(library.shipAmount * days).forEachOrdered(output.books::add);
+            plan.add(output);
+        }
+
         return plan;
     }
 
@@ -52,6 +67,8 @@ public final class Solver {
 
         for (final Output output : plan) {
             day += output.library.signupTime;
+
+            // TODO: don't ignore deadline and speed
 
             for (final Book book : output.books) {
                 result += book.score;
