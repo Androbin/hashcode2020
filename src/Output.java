@@ -20,7 +20,7 @@ public final class Output {
 		for (final Book book : books) {
 			result.append(book.toString()).append(' ');
 		}
-		result.append('\n')
+		result.append('\n');
 
 		return result.toString();
 	}
