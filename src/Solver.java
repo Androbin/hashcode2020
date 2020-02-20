@@ -52,8 +52,15 @@ public final class Solver {
     public static List<Output> solveGreedy(final List<Library> libraries, final int days) {
         final List<Library> registration = registration(libraries, days);
         final List<Output> plan = new ArrayList<>();
+        int day = 0;
 
         for (final Library library : registration) {
+            day += library.signupTime;
+
+            if (day >= days) {
+                break;
+            }
+
             final Output output = new Output(library);
             final long limit = (long) library.shipAmount * Math.max(days, 0);
             library.books.stream().limit(limit).forEachOrdered(output.books::add);
