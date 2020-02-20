@@ -11,4 +11,8 @@ public final class Book {
     public String toString() {
         return String.valueOf(id);
     }
+
+    public String toDebugString() {
+        return this.id + "-" + this.score;
+    }
 }

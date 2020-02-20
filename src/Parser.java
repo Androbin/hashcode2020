@@ -19,4 +19,15 @@ public final class Parser {
 
 		return result.toString();
 	}
+
+	public static String toDebugOutput(final List<Output> outputs) {
+		final StringBuilder result = new StringBuilder();
+		result.append(outputs.size()).append('\n');
+
+		for (final Output output : outputs) {
+			result.append(output.toDebugString()).append('\n');
+		}
+
+		return result.toString();
+	}
 }

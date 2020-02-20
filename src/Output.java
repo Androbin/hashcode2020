@@ -28,4 +28,15 @@ public final class Output {
         result.append('\n');
         return result.toString();
     }
+
+    public String toDebugString() {
+        final StringBuilder result = new StringBuilder();
+        result.append(this.library).append(": ");
+
+        for (final Book book : this.books) {
+            result.append(book.toDebugString()).append(' ');
+        }
+
+        return result.toString();
+    }
 }
