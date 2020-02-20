@@ -88,14 +88,14 @@ public final class Solver {
 
     // for dataset B
     public static List<Output> solveMinSignUp(final List<Library> libraries, final int days) {
-        libraries.sort(Comparator.comparing(library -> library.signupTime));
+        libraries.sort(Comparator.comparingInt(library -> library.signupTime));
         final List<Library> registration = registration(libraries, days);
         return solveGreedy(registration);
     }
 
     // for dataset D
     public static List<Output> solveMaxBooksNum(final List<Library> libraries, final int days) {
-        libraries.sort(Comparator.comparing((Library library) -> library.books.size()).reversed());
+        libraries.sort(Comparator.comparingInt((Library library) -> library.books.size()).reversed());
         return solveGreedy(libraries);
     }
 
