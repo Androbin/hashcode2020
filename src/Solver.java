@@ -1,5 +1,8 @@
-import java.util.*;
-import java.util.stream.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
 
 public final class Solver {
     private Solver() {
@@ -24,16 +27,17 @@ public final class Solver {
                 final Library a = registration.get(j);
                 final Library b = registration.get(j + 1);
 
-                day += a.signupTime;
+                final int scoreA1 = libraryInterest(a, days - day - a.signupTime);
+                final int scoreB1 = libraryInterest(b, days - day - a.signupTime - b.signupTime);
 
-                final int scoreA1 = libraryInterest(a, days - day);
-                final int scoreB1 = libraryInterest(b, days - day - b.signupTime);
-
-                final int scoreA2 = libraryInterest(a, days - day - a.signupTime);
-                final int scoreB2 = libraryInterest(b, days - day);
+                final int scoreA2 = libraryInterest(a, days - day - b.signupTime - a.signupTime);
+                final int scoreB2 = libraryInterest(b, days - day - b.signupTime);
 
                 if (scoreA2 + scoreB2 > scoreA1 + scoreB1) {
                     Collections.swap(registration, j, j + 1);
+                    day += b.signupTime;
+                } else {
+                    day += a.signupTime;
                 }
             }
         }
