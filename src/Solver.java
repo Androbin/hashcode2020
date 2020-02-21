@@ -48,7 +48,7 @@ public final class Solver {
         return result;
     }
 
-    private static List<Output> solveBooksGreedy(final List<Library> libraries, final int days) {
+    private static List<Output> solveGreedy(final List<Library> libraries, final int days) {
         final List<Output> plan = new ArrayList<>();
         final Set<Book> books = new HashSet<>();
         int day = 0;
@@ -68,22 +68,24 @@ public final class Solver {
         return plan;
     }
 
-    // best solution for D
-    public static List<Output> solveTimeGreedy(final List<Library> libraries, final int days) {
+    // compare must be fast
+    private static List<Output> solveSpooky(final List<Library> libraries, final Comparator<Library> compare, final int days) {
         final List<Library> leftover = new ArrayList<>(libraries);
         final List<Output> plan = new ArrayList<>();
         int day = 0;
 
         while (plan.size() < libraries.size()) {
-            leftover.sort(Comparator.comparingInt(Library::calcScore).reversed());
-            final Library bestLibrary = leftover.get(0);
-            leftover.remove(bestLibrary);
+            leftover.sort(compare);
+            final Library bestLibrary = leftover.remove(0);
+            /*final Library bestLibrary = leftover.stream().min(compare).get();
+            leftover.remove(bestLibrary);*/
+
             final Output output = new Output(bestLibrary);
             plan.add(output);
             day += bestLibrary.signupTime;
 
             final List<Book> bestBooks = bestLibrary.books.stream()
-                    .limit((long) bestLibrary.shipAmount * Math.max(days - day - bestLibrary.signupTime, 0))
+                    .limit((long) bestLibrary.shipAmount * Math.max(days - day, 0))
                     .collect(Collectors.toList());
 
             for (final Book book : bestBooks) {
@@ -91,9 +93,8 @@ public final class Solver {
                 book.libraries.forEach(library -> {
                     if (library != output.library) {
                         library.books.remove(book);
+                        library.score -= book.score;
                     }
-
-                    library.invalidateScore();
                 });
             }
         }
@@ -101,23 +102,50 @@ public final class Solver {
         return plan;
     }
 
-    // best solution for A, B, C, E, F
+    private static double intpow(final double x, final int n) {
+        if (n < 0) {
+            return 1.0 / intpow(x, -n);
+        }
+
+        double acc = 1.0;
+
+        for (int i = 0; i < n; i++) {
+            acc *= x;
+        }
+
+        return acc;
+    }
+
+    // best solution for A, B, C, D,  ,  ,
+    public static List<Output> solveSpookyScore(final List<Library> libraries, final int days) {
+        return solveSpooky(libraries, Comparator.comparingDouble((Library library) ->
+                intpow(library.score, 7) * intpow(library.signupTime, -10)
+        ).reversed(), days);
+    }
+
+    // best solution for A, B,  ,  , E, F,
     public static List<Output> solveRegression(final List<Library> libraries, final int days) {
         List<Output> bestPlan = null;
         int bestScore = 0;
 
+        // only need some combinations
         for (int i = 7; i <= 11; i += 1) {
             for (int j = 0; j <= 7; j += 1) {
-                final double a = 0.1 * i;
-                final double b = 0.1 * j;
-                final double c = -1.0;
-                libraries.sort(Comparator.comparingDouble((Library library) -> {
-                    return a * Math.log(library.calcScore()) + b * Math.log(library.shipAmount) + c * Math.log(library.signupTime);
-                }).reversed());
-                final List<Output> plan = solveBooksGreedy(libraries, days);
+                final int a = i;
+                final int b = j;
+
+                final Comparator<Library> compare = Comparator.comparingDouble((Library library) -> {
+                    return intpow(library.score, a) * intpow(library.shipAmount, b) * intpow(library.signupTime, -10);
+                }).reversed();
+
+                libraries.sort(compare);
+                final List<Output> plan = solveGreedy(libraries, days);
+
+                // final List<Output> plan = solveSpooky(libraries, compare, days);
+
                 final int score = score(plan, days, false);
 
-                if (score > bestScore) {
+                if (score >= bestScore) {
                     bestPlan = plan;
                     bestScore = score;
                 }

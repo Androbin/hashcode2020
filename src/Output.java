@@ -27,9 +27,4 @@ public final class Output {
 
         return result.toString();
     }
-
-    public int calcScanningTime() {
-        int num_books = this.books.size();
-        return (int) Math.ceil((float) num_books / this.library.shipAmount);
-    }
 }

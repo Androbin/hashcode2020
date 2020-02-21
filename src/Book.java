@@ -18,16 +18,6 @@ public final class Book implements Comparable<Book> {
     }
 
     @Override
-    public boolean equals(final Object other) {
-        return id == ((Book) other).id;
-    }
-
-    @Override
-    public int hashCode() {
-        return id;
-    }
-
-    @Override
     public String toString() {
         return String.valueOf(id);
     }
