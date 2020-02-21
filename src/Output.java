@@ -30,17 +30,6 @@ public final class Output {
 
     public int calcScanningTime() {
         int num_books = this.books.size();
-        return (int) Math.ceil(num_books / this.library.shipAmount);
-    }
-
-    public String toDebugString() {
-        final StringBuilder result = new StringBuilder();
-        result.append(this.library).append(": ");
-
-        for (final Book book : this.books) {
-            result.append(book.toDebugString()).append(' ');
-        }
-
-        return result.toString();
+        return (int) Math.ceil((float) num_books / this.library.shipAmount);
     }
 }

@@ -1,5 +1,9 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public final class Parser {
@@ -28,17 +32,23 @@ public final class Parser {
         final int numberOfDays = Integer.parseInt(data[2]);
 
         final List<Library> libraries = new ArrayList<>();
+        final List<Book> books = IntStream.range(0, bookScores.size())
+                .mapToObj(index -> new Book(index, bookScores.get(index))).collect(Collectors.toList());
+
         for (int i = 0; i < numberOfLibraries; i++) {
             final String[] libraryData = iterator.next().split(" ");
-            final List<Book> libraryBooks = Arrays.stream(iterator.next().split(" "))
-                    .map(Integer::parseInt)
-                    .map(index -> new Book(index, bookScores.get(index))).collect(Collectors.toList());
-
             final int singUpTime = Integer.parseInt(libraryData[1]);
             final int shipAmountPerDay = Integer.parseInt(libraryData[2]);
 
-            libraryBooks.sort(Comparator.<Book>comparingInt(b -> b.score).reversed());
-            libraries.add(new Library(i, singUpTime, shipAmountPerDay, libraryBooks));
+            final List<Book> libraryBooks = Arrays.stream(iterator.next().split(" "))
+                    .mapToInt(Integer::parseInt)
+                    .mapToObj(books::get)
+                    .sorted()
+                    .collect(Collectors.toList());
+
+            final Library library = new Library(i, singUpTime, shipAmountPerDay, libraryBooks);
+            libraries.add(library);
+            libraryBooks.forEach(book -> book.libraries.add(library));
         }
 
         return new Input(numberOfDays, libraries);
