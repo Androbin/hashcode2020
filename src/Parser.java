@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -11,11 +8,11 @@ public final class Parser {
     }
 
     public static String toOutput(final List<Output> outputs) {
-        final StringBuilder result = new StringBuilder();
-        result.append(outputs.size()).append('\n');
+        final StringJoiner result = new StringJoiner("\n");
+        result.add(String.valueOf(outputs.size()));
 
         for (final Output output : outputs) {
-            result.append(output.toString()).append('\n');
+            result.add(output.toString());
         }
 
         return result.toString();
@@ -51,6 +48,7 @@ public final class Parser {
             libraryBooks.forEach(book -> book.libraries.add(library));
         }
 
+        Collections.sort(libraries);
         return new Input(numberOfDays, libraries);
     }
 }
