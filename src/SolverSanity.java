@@ -1,23 +1,25 @@
-import java.util.*;
-import java.lang.Math;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class SolverSanity {
-	private SolverSanity() {
-	}
+    private SolverSanity() {
+    }
 
-	public static boolean sanity(final Input input, final List<Output> outputs) {
-		int days = input.days;
-		int maxSignupTs = 0;
-		int maxScanTs = 0;
+    public static boolean sanity(final List<Output> outputs) {
+        outputs.removeIf(output -> output.books.isEmpty());
 
-		for (final Output output : outputs) {
-			int signupTime = output.library.signupTime;
-			maxSignupTs += signupTime;
-			maxScanTs = Math.max(maxScanTs, maxSignupTs + output.calcScanningTime());
+        final Set<Library> libraries = new HashSet<>();
 
-		}
+        for (final Output output : outputs) {
+            if (!libraries.add(output.library)) {
+                return false;
+            }
+            if (!output.library.allBooks.containsAll(output.books)) {
+                return false;
+            }
+        }
 
-		// can all libraries be signed-up and books be scanned in the set number of days?
-		return maxScanTs <= days;
-	}
+        return true;
+    }
 }

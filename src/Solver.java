@@ -1,63 +1,35 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class Solver {
     private Solver() {
     }
 
-    private static int libraryInterest(final Library library, final int days) {
-        final long limit = (long) library.shipAmount * Math.max(days, 0);
-        return library.books.stream().limit(limit).mapToInt(book -> book.score).sum();
-    }
-
-    public static List<Library> registration(final List<Library> libraries, final int days) {
-        final List<Library> registration = new ArrayList<>(libraries);
-        boolean done = false;
-
-        while (!done) {
-            int day = 0;
-            done = true;
-
-            for (int i = 0; i < libraries.size() - 1; i++) {
-                final Library a = registration.get(i);
-                final Library b = registration.get(i + 1);
-
-                if (day >= days) {
-                    break;
-                }
-
-                final int scoreA1 = libraryInterest(a, days - day - a.signupTime);
-                final int scoreB1 = libraryInterest(b, days - day - a.signupTime - b.signupTime);
-
-                final int scoreA2 = libraryInterest(a, days - day - b.signupTime - a.signupTime);
-                final int scoreB2 = libraryInterest(b, days - day - b.signupTime);
-
-                if (scoreA2 + scoreB2 > scoreA1 + scoreB1) {
-                    Collections.swap(registration, i, i + 1);
-                    day += b.signupTime;
-                    done = false;
-                } else {
-                    day += a.signupTime;
-                }
-            }
-        }
-
-        return registration;
-    }
-
-    public static int score(final List<Output> plan, final int days) {
+    public static int score(final List<Output> plan, final int days, final boolean debug) {
         final HashSet<Book> books = new HashSet<>();
 
         int result = 0;
         int day = 0;
 
+        int a = 0;
+        int b = 0;
+        int c = 0;
+
         for (final Output output : plan) {
             day += output.library.signupTime;
 
             if (day >= days) {
-                break;
+                c++;
+                continue;
             }
 
             final long limit = (long) output.library.shipAmount * Math.max(days - day, 0);
+
+            if (limit >= output.library.allBooks.size()) {
+                a++;
+            } else {
+                b++;
+            }
 
             for (int i = 0; i < Math.min(output.books.size(), limit); i++) {
                 final Book book = output.books.get(i);
@@ -69,16 +41,26 @@ public final class Solver {
             }
         }
 
+        if (debug) {
+            System.out.println(a + " / " + b + " / " + c);
+        }
+
         return result;
     }
 
-    private static List<Output> solveGreedy(final List<Library> libraries) {
+    private static List<Output> solveBooksGreedy(final List<Library> libraries, final int days) {
         final List<Output> plan = new ArrayList<>();
         final Set<Book> books = new HashSet<>();
+        int day = 0;
 
         for (final Library library : libraries) {
+            day += library.signupTime;
+
             final Output output = new Output(library);
-            library.books.stream().filter(book -> !books.contains(book)).forEachOrdered(output.books::add);
+            library.books.stream()
+                    .filter(book -> !books.contains(book))
+                    .limit((long) library.shipAmount * Math.max(days - day, 0))
+                    .forEachOrdered(output.books::add);
             plan.add(output);
             books.addAll(output.books);
         }
@@ -86,52 +68,63 @@ public final class Solver {
         return plan;
     }
 
-    // for dataset B
-    public static List<Output> solveMinSignUp(final List<Library> libraries, final int days) {
-        libraries.sort(Comparator.comparingInt(library -> library.signupTime));
-        final List<Library> registration = registration(libraries, days);
-        return solveGreedy(registration);
-    }
-
-    // for dataset D
-    public static List<Output> solveMaxBooksNum(final List<Library> libraries, final int days) {
-        libraries.sort(Comparator.comparingInt((Library library) -> library.books.size()).reversed());
-        return solveGreedy(libraries);
-    }
-
-    // for dataset D
-    public static List<Output> solveMaxBooksNumAndRemoveCommittedBooks(final List<Library> libraries, final int days) {
-        final List<Library> registration = new ArrayList<>(libraries);
+    // best solution for D
+    public static List<Output> solveTimeGreedy(final List<Library> libraries, final int days) {
+        final List<Library> leftover = new ArrayList<>(libraries);
         final List<Output> plan = new ArrayList<>();
+        int day = 0;
 
-        // sort by num of books desc
-        registration.sort(Comparator.comparing((Library library) -> library.books.size()).reversed());
-
-        while (!registration.isEmpty()) {
-            Library library = registration.remove(0);
-            final Output output = new Output(library);
-
-            // add books to output
-            library.books.stream().forEachOrdered(output.books::add);
-
-            // remove added books from all other libraries
-            for (Library otherLib : registration) {
-                otherLib.books.removeIf(book -> library.books.contains(book));
-            }
-
-            // sort by num of books desc
-            registration.sort(Comparator.comparing((Library lib) -> lib.books.size()).reversed());
-
+        while (plan.size() < libraries.size()) {
+            leftover.sort(Comparator.comparingInt(Library::calcScore).reversed());
+            final Library bestLibrary = leftover.get(0);
+            leftover.remove(bestLibrary);
+            final Output output = new Output(bestLibrary);
             plan.add(output);
+            day += bestLibrary.signupTime;
+
+            final List<Book> bestBooks = bestLibrary.books.stream()
+                    .limit((long) bestLibrary.shipAmount * Math.max(days - day - bestLibrary.signupTime, 0))
+                    .collect(Collectors.toList());
+
+            for (final Book book : bestBooks) {
+                output.books.add(book);
+                book.libraries.forEach(library -> {
+                    if (library != output.library) {
+                        library.books.remove(book);
+                    }
+
+                    library.invalidateScore();
+                });
+            }
         }
 
         return plan;
     }
 
-    public static List<Output> solveLibScore(final List<Library> libraries, final int days) {
-        final List<Library> registration = registration(libraries, days);
-        registration.sort(Comparator.comparing((Library library) -> library.calcScore()).reversed());
-        return solveGreedy(registration);
+    // best solution for A, B, C, E, F
+    public static List<Output> solveRegression(final List<Library> libraries, final int days) {
+        List<Output> bestPlan = null;
+        int bestScore = 0;
+
+        for (int i = 7; i <= 11; i += 1) {
+            for (int j = 0; j <= 7; j += 1) {
+                final double a = 0.1 * i;
+                final double b = 0.1 * j;
+                final double c = -1.0;
+                libraries.sort(Comparator.comparingDouble((Library library) -> {
+                    return a * Math.log(library.calcScore()) + b * Math.log(library.shipAmount) + c * Math.log(library.signupTime);
+                }).reversed());
+                final List<Output> plan = solveBooksGreedy(libraries, days);
+                final int score = score(plan, days, false);
+
+                if (score > bestScore) {
+                    bestPlan = plan;
+                    bestScore = score;
+                }
+            }
+        }
+
+        return bestPlan;
     }
 
     public static List<Output> solveLibScoreBySignupAndShipAmount(final List<Library> libraries, final int days) {

@@ -1,6 +1,0 @@
-javac -d out src/*.java && (cd out; java Main ../input/a_input.txt ../output/a_output.txt)
-javac -d out src/*.java && (cd out; java Main ../input/b_input.txt ../output/b_output.txt)
-javac -d out src/*.java && (cd out; java Main ../input/c_input.txt ../output/c_output.txt)
-javac -d out src/*.java && (cd out; java Main ../input/d_input.txt ../output/d_output.txt)
-javac -d out src/*.java && (cd out; java Main ../input/e_input.txt ../output/e_output.txt)
-javac -d out src/*.java && (cd out; java Main ../input/f_input.txt ../output/f_output.txt)
