@@ -15,7 +15,7 @@ public final class SolverSanity {
             if (!libraries.add(output.library)) {
                 return false;
             }
-            if (!output.library.books.containsAll(output.books)) {
+            if (!output.library.allBooks.containsAll(output.books)) {
                 return false;
             }
         }

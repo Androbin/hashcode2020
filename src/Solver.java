@@ -5,7 +5,7 @@ public final class Solver {
     private Solver() {
     }
 
-    public static int score(final List<Output> plan, final int days) {
+    public static int score(final List<Output> plan, final int days, final boolean debug) {
         final HashSet<Book> books = new HashSet<>();
 
         int result = 0;
@@ -25,7 +25,7 @@ public final class Solver {
 
             final long limit = (long) output.library.shipAmount * Math.max(days - day, 0);
 
-            if (limit >= output.books.size()) {
+            if (limit >= output.library.allBooks.size()) {
                 a++;
             } else {
                 b++;
@@ -41,7 +41,10 @@ public final class Solver {
             }
         }
 
-        System.out.println(a + " / " + b + " / " + c);
+        if (debug) {
+            System.out.println(a + " / " + b + " / " + c);
+        }
+
         return result;
     }
 
@@ -65,20 +68,16 @@ public final class Solver {
         return plan;
     }
 
-    // best solution for D, E, F
+    // best solution for D
     public static List<Output> solveTimeGreedy(final List<Library> libraries, final int days) {
+        final List<Library> leftover = new ArrayList<>(libraries);
         final List<Output> plan = new ArrayList<>();
         int day = 0;
 
         while (plan.size() < libraries.size()) {
-            final int day_ = day;
-            libraries.sort(Comparator.comparingInt((Library library) -> {
-                // C -> library.signupTime * 10
-                final int limit = days - day_ - library.signupTime;
-                return library.calcSum()[Math.max(0, Math.min(limit, library.books.size()))];
-            }).reversed());
-            final Library bestLibrary = libraries.get(0);
-            libraries.remove(bestLibrary);
+            leftover.sort(Comparator.comparingInt(Library::calcScore).reversed());
+            final Library bestLibrary = leftover.get(0);
+            leftover.remove(bestLibrary);
             final Output output = new Output(bestLibrary);
             plan.add(output);
             day += bestLibrary.signupTime;
@@ -94,7 +93,7 @@ public final class Solver {
                         library.books.remove(book);
                     }
 
-                    // library.invalidateSum();
+                    library.invalidateScore();
                 });
             }
         }
@@ -102,9 +101,29 @@ public final class Solver {
         return plan;
     }
 
-    // best solution for A, B, C
-    public static List<Output> solveMinSignUp(final List<Library> libraries, final int days) {
-        libraries.sort(Comparator.comparingInt(library -> library.signupTime));
-        return solveBooksGreedy(libraries, days);
+    // best solution for A, B, C, E, F
+    public static List<Output> solveRegression(final List<Library> libraries, final int days) {
+        List<Output> bestPlan = null;
+        int bestScore = 0;
+
+        for (int i = 7; i <= 11; i += 1) {
+            for (int j = 0; j <= 7; j += 1) {
+                final double a = 0.1 * i;
+                final double b = 0.1 * j;
+                final double c = -1.0;
+                libraries.sort(Comparator.comparingDouble((Library library) -> {
+                    return a * Math.log(library.calcScore()) + b * Math.log(library.shipAmount) + c * Math.log(library.signupTime);
+                }).reversed());
+                final List<Output> plan = solveBooksGreedy(libraries, days);
+                final int score = score(plan, days, false);
+
+                if (score > bestScore) {
+                    bestPlan = plan;
+                    bestScore = score;
+                }
+            }
+        }
+
+        return bestPlan;
     }
 }
